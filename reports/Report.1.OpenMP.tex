@@ -1,0 +1,120 @@
+\documentclass{report}
+\title{Report 1: OpenMP}
+\author{Nguyen Duc Vu}
+
+\begin{document}
+
+\maketitle
+
+\begin{section}
+
+
+\begin{verbatim}
+
+How you implement the conversion
+- I added the parallel omp code before the first for loop of the Labwork::labwork1_OpenMP() function:
+
+void Labwork::labwork1_OpenMP() {
+     int pixelCount = inputImage->width * inputImage->height;
+    outputImage = static_cast<char *>(malloc(pixelCount * 3));
+    #pragma omp parallel for
+    for (int j = 0; j < 100; j++) {     // let's do it 100 times, otherwise it's too fast!
+        for (int i = 0; i < pixelCount; i++) {
+            outputImage[i * 3] = (char) (((int) inputImage->buffer[i * 3] + (int) inputImage->buffer[i * 3 + 1] +
+                                          (int) inputImage->buffer[i * 3 + 2]) / 3);
+            outputImage[i * 3 + 1] = outputImage[i * 3];
+            outputImage[i * 3 + 2] = outputImage[i * 3];
+        }
+    }   
+
+}
+
+
+What’s the speedup?
+1. Default:
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 1 ../data/eiffel.jpg
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2745.3ms
+labwork 1 ellapsed 129.8ms
+
+
+2. static
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 1 ../data/eiffel.jpg 
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2872.4ms
+labwork 1 ellapsed 792.3ms
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 1 ../data/eiffel.jpg 
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2876.0ms
+labwork 1 ellapsed 786.3ms
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 1 ../data/eiffel.jpg 
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2729.5ms
+labwork 1 ellapsed 787.2ms
+
+3. dynamic
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 1 ../data/eiffel.jpg 
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2750.4ms
+labwork 1 ellapsed 788.1ms
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 1 ../data/eiffel.jpg 
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2725.4ms
+labwork 1 ellapsed 784.6ms
+vund@ictserver3:~/advancedhpc2017/labwork/build$ 
+
+
+Schedule type: Dynamic:
+- Number of thread: 1:
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2904.1ms
+labwork 1 ellapsed 732.0ms
+
+- Number of threads: 2
+
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2892.2ms
+labwork 1 ellapsed 785.0ms
+
+- Number of threads: 3
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2854.0ms
+labwork 1 ellapsed 846.0ms
+
+
+- Number of threads: 4
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 2881.9ms
+labwork 1 ellapsed 842.3ms
+
+
+
+\end{verbatim}
+
+\end{section}
+
+
+\end{section}
+
+
+\end{document}

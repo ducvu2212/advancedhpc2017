@@ -156,8 +156,31 @@ void Labwork::labwork2_GPU() {
     }
 }
 
+__global__ void grayscale(uchar3 *input, uchar3 *output) {
+int tid = threadIdx.x + blockIdx.x * blockDim.x;
+output[tid].x = (input[tid].x + input[tid].y +
+input[tid].z) / 3;
+output[tid].z = output[tid].y = output[tid].x;
+}
+
 void Labwork::labwork3_GPU() {
-   
+    int pixelCount = inputImage->width * inputImage->height;
+    int blockSize = 64;
+    int numBlock = pixelCount / blockSize;
+    outputImage = static_cast<char *>(malloc(pixelCount * 3));
+    uchar3 *devInput, *devOutput;
+
+    cudaMalloc(&devInput, pixelCount * 3 * sizeof(char));
+    cudaMalloc(&devOutput, pixelCount * 3 * sizeof(char));
+    cudaMemcpy(devInput, inputImage->buffer, pixelCount * 3 * sizeof(char), cudaMemcpyHostToDevice);
+
+    
+    grayscale<<<numBlock, blockSize>>>(devInput, devOutput);
+    
+    cudaMemcpy(outputImage, devOutput, pixelCount * 3 * sizeof(char),  cudaMemcpyDeviceToHost);
+    
+    cudaFree(devInput);
+    cudaFree(devOutput);   
 }
 
 void Labwork::labwork4_GPU() {
@@ -187,3 +210,4 @@ void Labwork::labwork9_GPU() {
 void Labwork::labwork10_GPU() {
 
 }
+

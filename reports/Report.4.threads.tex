@@ -1,0 +1,75 @@
+\documentclass{report}
+\title{Report 4: Threads}
+\author{Nguyen Duc Vu}
+
+\begin{document}
+
+\maketitle
+
+\begin{section}
+
+
+\begin{verbatim}
+
+1. Improvement on the labwork:
+- Modify the kernel to make Device CPU process in 2D: adding y to get the location of each pixel in columns
+__global__ void grayscale2d(uchar3 *input, uchar3 *output, int width) {
+int x = threadIdx.x + blockIdx.x * blockDim.x;
+int y = threadIdx.y + blockIdx.y * blockDim.y;
+int tid = y * width + x;
+output[tid].x = (input[tid].x + input[tid].y + input[tid].z) / 3;
+output[tid].z = output[tid].y = output[tid].x;
+}
+
+- Modify the labwork4 code part:
+	+ define gridSize and blockSize 
+    dim3 gridSize = dim3(8, 8);
+    dim3 blockSize = dim3(32, 32);
+
+    + call the grayscale2d function to process the pixels
+    grayscale2d<<<gridSize, blockSize>>>(devInput, devOutput, inputImage->width);
+
+    + for the rest of the part, keep it remaining as Labwork3
+
+2. Speed up:
+
+
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 3 ../data/eiffel.jpg
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 3
+labwork 3 ellapsed 130.1ms
+
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 4 ../data/eiffel.jpg
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 4
+labwork 4 ellapsed 98.6ms
+
+
+--> The function labwork4 is a little bit faster then the labwork3
+
+3. Thread: Exercises
+
+Exercise 1:
+
+- 8x8: --> the blocksize would be 64  -> can be able to fit the threads allowed for each block (512)
+- 16x16 --> the blocksize = 256 --> still fit the allowed threads --> this is the best configuration as it is closest to the maximum threads/block given
+- 32x32 --> blocksize = 1024 --> greater than maximum threads allow for each block --> not work
+
+Exercise 2:
+
+- 256 threads/blk would result in the most number of threads in the SM as with 4 blocks, the device SM will have to take: 256 x 4 = 1024 threads, which is closest to the maximum threads that the device can handle on this case.
+
+Exercise 3: 
+- 2048 threads will be in the grid to cover	the vector length (2000)
+
+\end{verbatim}
+
+\end{section}
+
+
+\end{section}
+
+
+\end{document}

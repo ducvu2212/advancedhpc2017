@@ -168,7 +168,7 @@ void Labwork::labwork5_CPU() {
                     if (j < 0) continue;
                     if (j >= inputImage->height) continue;
                     int tid = j * inputImage->width + i;
-                    unsigned char gray = (inputImage->buffer[tid * 3] + inputImage->buffer[tid * 3 + 1] + inputImage->buffer[t$
+                    unsigned char gray = (inputImage->buffer[tid * 3] + inputImage->buffer[tid * 3 + 1] + inputImage->buffer[tid * 3 + 2])/3;
                     int coefficient = kernel[(y+3) * 7 + x + 3];
                     sum = sum + gray * coefficient;
                     c += coefficient;

@@ -1,0 +1,80 @@
+\documentclass{report}
+\title{Report 5: Gaussian Blur Convolution}
+\author{Nguyen Duc Vu}
+
+\begin{document}
+
+\maketitle
+
+\begin{section}
+
+
+\begin{verbatim}
+
+1. Explain the implementation of the Gaussian Blur filter
+- create the filter as a fixed size 7x7 matrix: this defines the value of target pixel and its surrounding:
+	int kernel[] = { 0, 0, 1, 2, 1, 0, 0,
+                     0, 3, 13, 22, 13, 3, 0,
+                     1, 13, 59, 97, 59, 13, 1,
+                     2, 22, 97, 159, 97, 22, 2,
+                     1, 13, 59, 97, 59, 13, 1,
+                     0, 3, 13, 22, 13, 3, 0,
+                     0, 0, 1, 2, 1, 0, 0 };
+
+- find get the pixelCount:
+	int pixelCount = inputImage->width * inputImage->height;
+
+- Do the pixel processing/value calculation part:
+	+ Apply the fixed 7x7 matrix filter (kernel) into each target pixel
+
+	+ multiple all elements in the filter with the target pixel and its 6 elements surrounding
+
+	+ then adding all of them together
+
+	+ divide the sum to the total number of elements in the matrix to get the average value pixel
+
+int pixelCount = inputImage->width * inputImage->height;
+    outputImage = (char*) malloc(pixelCount * sizeof(char) * 3);
+    for (int row = 0; row < inputImage->height; row++) {
+        for (int col = 0; col < inputImage->width; col++) {
+            int sum = 0;
+            int c = 0;
+            for (int y = -3; y <= 3; y++) {
+                for (int x = -3; x <= 3; x++) {
+                    int i = col + x;
+                    int j = row + y;
+                    if (i < 0) continue;
+                    if (i >= inputImage->width) continue;
+                    if (j < 0) continue;
+                    if (j >= inputImage->height) continue;
+                    int tid = j * inputImage->width + i;
+                    unsigned char gray = (inputImage->buffer[tid * 3] + inputImage->buffer[tid * 3 + 1] + inputImage->buffer[tid * 3 + 2])/3;
+                    int coefficient = kernel[(y+3) * 7 + x + 3];
+                    sum = sum + gray * coefficient;
+                    c += coefficient;
+                }
+            }
+            sum /= c;
+            int posOut = row * inputImage->width + col;
+            outputImage[posOut * 3] = outputImage[posOut * 3 + 1] = outputImage[posOut * 3 + 2] = sum;
+        }
+
+
+2. Speed up:
+
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 5 ../data/eiffel.jpg
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 5
+labwork 5 ellapsed 1780.8ms
+
+
+\end{verbatim}
+
+\end{section}
+
+
+\end{section}
+
+
+\end{document}

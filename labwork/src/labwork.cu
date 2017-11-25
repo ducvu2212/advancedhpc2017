@@ -314,7 +314,36 @@ void Labwork::labwork5_GPU() {
     cudaFree(devOutput);
 }
 
+
+__global__ void grayscaleBinary(uchar3 *input, uchar3 *outputGrey, int width) {
+	int x = threadIdx.x + blockIdx.x * blockDim.x;
+	int y = threadIdx.y + blockIdx.y * blockDim.y;
+	int tid = y * width + x;
+	unsigned char grey = (input[tid].x + input[tid].y + input[tid].z) / 3;
+	if (grey >= 180) { outputGrey[tid].x = outputGrey[tid].y = outputGrey[tid].z = 255; }
+	else { outputGrey[tid].x = outputGrey[tid].y = outputGrey[tid].z = 0; }
+}
+
+
 void Labwork::labwork6_GPU() {
+    int pixelCount = inputImage->width * inputImage->height;
+    dim3 blockSize = dim3(32, 32);
+    dim3 gridSize = dim3(inputImage->width/blockSize.x, inputImage->height/blockSize.y);
+    outputImage = static_cast<char *>(malloc(pixelCount * 3));
+
+    uchar3 *devInput, *devOutputGrey;
+
+    cudaMalloc(&devInput, pixelCount * 3 * sizeof(char));
+    cudaMalloc(&devOutputGrey, pixelCount * 3 * sizeof(char));
+    cudaMemcpy(devInput, inputImage->buffer, pixelCount * 3 * sizeof(char), cudaMemcpyHostToDevice);
+
+
+    grayscaleBinary<<<gridSize, blockSize>>>(devInput, devOutputGrey, inputImage->width);
+
+    cudaMemcpy(outputImage, devOutputGrey, pixelCount * 3 * sizeof(char),  cudaMemcpyDeviceToHost);
+
+    cudaFree(devInput);
+    cudaFree(devOutputGrey);
 
 }
 

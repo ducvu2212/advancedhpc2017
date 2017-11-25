@@ -1,0 +1,50 @@
+\documentclass{report}
+\title{Report 6: Map}
+\author{Nguyen Duc Vu}
+
+\begin{document}
+
+\maketitle
+
+\begin{section}
+
+
+\begin{verbatim}
+
+1. Implementation
+- I reused the kernal and code from labwork 4 (scale)
+
+
+- Kernel: from the kernel of labwork 4:
+
+    + Calculate the grey value as the same function in labwork 4
+    + Put a threshold, if grey value is equal or larger than the threshold (180), set the value of pixels to 255, otherwise set them to 0
+
+    --> By this way, all the pixels in the input image will turns into either while or black.
+
+__global__ void grayscaleBinary(uchar3 *input, uchar3 *outputGrey, int width) {
+        int x = threadIdx.x + blockIdx.x * blockDim.x;
+        int y = threadIdx.y + blockIdx.y * blockDim.y;
+        int tid = y * width + x;
+        unsigned char grey = (input[tid].x + input[tid].y + input[tid].z) / 3;
+        if (grey >= 180) { outputGrey[tid].x = outputGrey[tid].y = outputGrey[tid].z = 255; }
+        else { outputGrey[tid].x = outputGrey[tid].y = outputGrey[tid].z = 0; }
+}
+
+2. Speedup:
+vund@ictserver3:~/advancedhpc2017/labwork/build$ ./labwork 6 ../data/eiffel.jpg
+USTH ICT Master 2017, Advanced Programming for HPC.
+Warming up...
+Starting labwork 6
+labwork 6 ellapsed 96.6ms
+
+
+\end{verbatim}
+
+\end{section}
+
+
+\end{section}
+
+
+\end{document}
